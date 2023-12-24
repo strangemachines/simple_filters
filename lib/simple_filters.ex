@@ -68,11 +68,13 @@ defmodule SimpleFilters do
         query
         |> where(
           unquote(binds),
-          unquote(table).unquote(column) >= ^Filters.parse_integer(from_value)
+          unquote(table).unquote(column) >=
+            ^SimpleFilters.parse_integer(from_value)
         )
         |> where(
           unquote(binds),
-          unquote(table).unquote(column) <= ^Filters.parse_integer(to_value)
+          unquote(table).unquote(column) <=
+            ^SimpleFilters.parse_integer(to_value)
         )
       end
 
@@ -80,7 +82,7 @@ defmodule SimpleFilters do
         where(
           query,
           unquote(binds),
-          unquote(table).unquote(column) >= ^Filters.parse_integer(value)
+          unquote(table).unquote(column) >= ^SimpleFilters.parse_integer(value)
         )
       end
 
@@ -158,7 +160,7 @@ defmodule SimpleFilters do
         if is_binary(value) do
           cond do
             String.starts_with?(value, "^") ->
-              new_value = Filters.cut_operator(value)
+              new_value = SimpleFilters.cut_operator(value)
 
               where(
                 query,
@@ -167,7 +169,7 @@ defmodule SimpleFilters do
               )
 
             String.starts_with?(value, "!") ->
-              new_value = Filters.cut_operator(value)
+              new_value = SimpleFilters.cut_operator(value)
 
               where(
                 query,
@@ -183,8 +185,8 @@ defmodule SimpleFilters do
               )
           end
         else
-          first_value = value |> List.first() |> Filters.cut_operator()
-          second_value = value |> List.last() |> Filters.cut_operator()
+          first_value = value |> List.first() |> SimpleFilters.cut_operator()
+          second_value = value |> List.last() |> SimpleFilters.cut_operator()
 
           where(
             query,
