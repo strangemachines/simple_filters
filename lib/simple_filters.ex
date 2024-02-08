@@ -115,6 +115,24 @@ defmodule SimpleFilters do
               unquote(table).unquote(column) != ^String.downcase(new_value)
             )
 
+          String.starts_with?(value, ">") ->
+            new_value = SimpleFilters.cut_operator(value)
+
+            where(
+              query,
+              unquote(binds),
+              unquote(table).unquote(column) > ^String.downcase(new_value)
+            )
+
+          String.starts_with?(value, "<") ->
+            new_value = SimpleFilters.cut_operator(value)
+
+            where(
+              query,
+              unquote(binds),
+              unquote(table).unquote(column) < ^String.downcase(new_value)
+            )
+
           true ->
             where(
               query,
