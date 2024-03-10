@@ -104,6 +104,10 @@ defmodule SimpleFilters do
     column = SimpleFilters.get_column(name, opts)
 
     quote do
+      def unquote(function)(query, %{"#{unquote(name)}" => nil}) do
+        where(query, unquote(binds), is_nil(unquote(table).unquote(column)))
+      end
+
       def unquote(function)(query, %{"#{unquote(name)}" => value}) do
         cond do
           String.starts_with?(value, "!") ->
