@@ -146,6 +146,63 @@ defmodule SimpleFilters do
     end
   end
 
+  defmacro filter_date(name, bindings, table, opts \\ []) do
+    function = :"filter_by_#{name}"
+    binds = var!(bindings)
+    column = SimpleFilters.get_column(name, opts)
+
+    quote do
+      def unquote(function)(query, %{"#{unquote(name)}" => nil}) do
+        where(query, unquote(binds), is_nil(unquote(table).unquote(column)))
+      end
+
+      def unquote(function)(query, %{"#{unquote(name)}" => value})
+          when is_binary(value) do
+        cond do
+          String.starts_with?(value, "!") ->
+            new_value = SimpleFilters.cut_operator(value)
+
+            where(
+              query,
+              unquote(binds),
+              unquote(table).unquote(column) != ^new_value
+            )
+
+          String.starts_with?(value, ">") ->
+            new_value = SimpleFilters.cut_operator(value)
+
+            where(
+              query,
+              unquote(binds),
+              unquote(table).unquote(column) > ^new_value
+            )
+
+          String.starts_with?(value, "<") ->
+            new_value = SimpleFilters.cut_operator(value)
+
+            where(
+              query,
+              unquote(binds),
+              unquote(table).unquote(column) < ^new_value
+            )
+
+          true ->
+            where(
+              query,
+              unquote(binds),
+              unquote(table).unquote(column) == ^value
+            )
+        end
+      end
+
+      def unquote(function)(query, %{"#{unquote(name)}" => value}) do
+        where(query, unquote(binds), unquote(table).unquote(column) == ^value)
+      end
+
+      def unquote(function)(query, _params), do: query
+    end
+  end
+
   defmacro filter_list(name, bindings, table, opts \\ []) do
     function = :"filter_by_#{name}"
     binds = var!(bindings)
